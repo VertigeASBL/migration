@@ -17,5 +17,6 @@
 
 	<licence>GNU/GPL</licence>
 
+  <lib nom="html2spip" lien="http://ftp.espci.fr/pub/html2spip/html2spip-0.6.zip" />
 
 </paquet>
