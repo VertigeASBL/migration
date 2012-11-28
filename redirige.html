@@ -1,0 +1,119 @@
+[(#REM) Pour que ce squelette soit appelé, il faut configurer correctement le
+        .htaccess. Par exemple, pour rediriger les urls de type "Joomla" (qui
+        semblent toutes contenir "option=" dans leurs query_strings) sur 
+        ce squelette, on pourrait ajouter ceci :
+
+RewriteCond %{QUERY_STRING} option=
+RewriteRule index.php spip.php?page=redirige&%{QUERY_STRING}
+   
+]
+
+<?php
+ 
+ /* Les variables passées en GET se retrouvent dans le tableau $contexte. On 
+    s'en sert pour remplir un tableau $parametre_url avec les parametres d'url
+    de spip */
+ $parametres_url = array();
+
+ /* page d'annuaire, renvoie vers un rubrique */
+ if ($contexte['option'] == 'com_chronoconnectivity') {
+
+   /* si liste détaillée */
+   if ($contexte['connectionname']) {
+     $parametres_url['page'] = 'rubrique_detaillee';
+   } else {
+     $parametres_url['page'] = 'rubrique';
+   }
+
+   /* correspondances entre les ids */
+   switch ($contexte['Itemid']) {
+      case '8':
+        $parametres_url['id_rubrique'] = $GLOBALS['id_rubrique_barbant'];
+        break;
+      case '9':
+        $parametres_url['id_rubrique'] = $GLOBALS['id_rubrique_bruxelles'];
+        break;
+      case '10':
+        $parametres_url['id_rubrique'] = $GLOBALS['id_rubrique_chimay'];
+        break;
+      case '15':
+        $parametres_url['id_rubrique'] = $GLOBALS['id_rubrique_charleroi'];
+        break;
+      case '11':
+        $parametres_url['id_rubrique'] = $GLOBALS['id_rubrique_liege'];
+        break;
+      case '12':
+        $parametres_url['id_rubrique'] = $GLOBALS['id_rubrique_mons'];
+        break;
+      case '13':
+        $parametres_url['id_rubrique'] = $GLOBALS['id_rubrique_namur'];
+        break;
+      case '14':
+        $parametres_url['id_rubrique'] = $GLOBALS['id_rubrique_sud_luxembourg'];
+        break;
+      default:
+        $parametres_url['id_rubrique'] = $GLOBALS['id_rubrique_entreprises'];
+        break;
+    }
+ }
+
+ /* page d'article, renvoie vers un article */
+ else if (($contexte['option'] == 'com_content') && ($contexte['view_article'])) {
+   
+   $parametres_url['page'] = 'article';
+   
+   /* correspondances entre les ids */
+   switch ($contexte['id']) {
+      case '3':
+        $parametres_url['id_article'] = $GLOBALS['id_article_liens'];
+        break;
+      case '2':
+        $parametres_url['id_article'] = $GLOBALS['id_article_fondateurs'];
+        break;
+      case '6':
+        $parametres_url['id_article'] = $GLOBALS['id_article_contact'];
+        break;
+      case '4':
+        $parametres_url['id_article'] = $GLOBALS['id_article_partenaires_locaux'];
+        break;
+      case '5':
+        $parametres_url['id_article'] = $GLOBALS['id_article_presse'];
+        break;
+      case '7':
+        $parametres_url['id_article'] = $GLOBALS['id_article_les_guildes'];
+        break;
+      case '16':
+        $parametres_url['id_article'] = $GLOBALS['id_article_trois_axes'];
+        break;
+      case '17':
+        $parametres_url['id_article'] = $GLOBALS['id_article_charte'];
+        break;
+      case '21':
+        $parametres_url['id_article'] = $GLOBALS['id_article_eco_sociale'];
+        break;
+      case '19':
+        $parametres_url['id_article'] = $GLOBALS['id_article_environnement'];
+        break;
+      case '20':
+        $parametres_url['id_article'] = $GLOBALS['id_article_commerce_equitable'];
+        break;
+    }
+ }
+
+ /* on ajoute les parametres qu'on vient de calculer dans l'url. */
+ include_spip('inc/utils');
+
+ /* par défaut, on redirige vers la page d'accueil */
+ $url = "#URL_SITE_SPIP/spip.php";
+
+ foreach ($parametres_url as $nom => $valeur) {
+   $url = parametre_url($url, $nom, $valeur, '&');
+ }
+
+ // TODO : "proprifier" les urls…
+
+ /* on redirige */
+ include_spip('inc/headers');
+ redirige_par_entete($url, '', 301);
+
+?>
