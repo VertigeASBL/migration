@@ -55,7 +55,7 @@ function importer_entreprises_depuis_joomla () {
   foreach ($tableau_entreprises as $i => $entreprise) {
     switch ($entreprise['Commune1']) {
       case 'Brabant Wallon':
-        $entreprise['id_rubrique'] = $GLOBALS['id_rubrique_barbant'];
+        $entreprise['id_rubrique'] = $GLOBALS['id_rubrique_brabant'];
         break;
       case 'Bruxelles':
         $entreprise['id_rubrique'] = $GLOBALS['id_rubrique_bruxelles'];
@@ -126,7 +126,6 @@ function importer_entreprises_depuis_joomla () {
                          )));
     }
   }
-  return True;
 }
 
 ?>
