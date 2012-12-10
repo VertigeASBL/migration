@@ -1,0 +1,31 @@
+<div class="formulaire_spip formulaire_#FORM">
+ 
+ <div class="notice">
+ 	<p>Ce plugin n'est pas distiné à être utilisé dans un environnement de production.</p>
+ 	<p>Pour importer de grande base de donnée, n'hésité pas à modifier les valeurs <strong>max_execution_time</strong> de PHP.</p>
+ </div>
+ 
+[<p class="reponse_formulaire reponse_formulaire_erreur">(#ENV*{message_erreur})</p>]
+[<p class="reponse_formulaire reponse_formulaire_ok">(#ENV*{message_ok})</p>]
+ 
+<form action="#ENV{action}" method="post">
+    #ACTION_FORMULAIRE{#ENV{action}}
+    <ul>
+    	#SET{erreurs,#ENV**{erreurs}|table_valeur{NomErreur}}
+		<li class="editer_#FORM obligatoire[ (#GET{erreurs}|oui)erreur]">
+			<label for="cms">Sélectionner un CMS: </label>
+			<select id="cms" name="cms">
+		    	<option value="none">--</option>
+		    	<option value="wordpress">Wordpress</option>
+		    	<!-- <option value="joomla">Joomla</option> -->
+		    </select>
+		</li>
+		<li class="editer_#FORM obligatoire[ (#GET{erreurs}|oui)erreur]">
+			<label for="prefix">Prefix des tables: </label>
+			<p class="explication">Laisser vide pour le prefix par défaut du CMS.</p>
+			<input id="prefix" class="text" type="text" name="prefix">
+		</li>
+    </ul>
+    <p class="boutons"><input type="submit" class="submit" value="<:pass_ok:>" /></p>
+</form>
+</div>

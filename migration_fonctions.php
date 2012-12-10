@@ -8,15 +8,21 @@
 if (!defined('_ECRIRE_INC_VERSION')) return;
 
 /*
+	On inclut les fonctions relative au CMS
+*/
+
+include_spip('cms_fonctions');
+
+/*
   Reconversion HTML vers typo SPIP
 */
-function html2spip_translate ($texte) {
+function html2spip_translate ($texte, $id_article) {
   
-  require_once(find_in_path('lib/html2spip/misc_tools.php'));
-  require_once(find_in_path('lib/html2spip/HTMLEngine.class'));
-  require_once(find_in_path('lib/html2spip/HTML2SPIPEngine.class'));
+  require_once(find_in_path('html2spip/misc_tools.php'));
+  require_once(find_in_path('html2spip/HTMLEngine.class.php'));
+  require_once(find_in_path('html2spip/HTML2SPIP3Engine.class.php'));
 
-  $parser = new HTML2SPIPEngine($GLOBALS['db_ok']['link'], _DIR_IMG);
+  $parser = new HTML2SPIP3Engine($GLOBALS['db_ok']['link'], _DIR_IMG, $id_article);
   $parser->loggingEnable();
   $identity_tags = 'script;embed;param;object';
   $parser->addIdentityTags(explode(';', $identity_tags));
@@ -25,16 +31,89 @@ function html2spip_translate ($texte) {
   return trim($output['default']);
 }
 
-
-/*******************************/
-/******* Exemples **************/
-/*******************************/
-
 /* On définit ici nos fonctions d'import, qu'on peut appeller alors 
    dans le squelette prive/squelettes/contenu/migrer.html. On fait la
    migration en allant sur la page ecrire/?exec=migrer
 */
 
+/*
+	Function d'importation d'un wordpress dans SPIP
+	Seulement les tables classique de wordpress.
+*/
+function importer_wordpress($prefix = 'wp_') {
+	/* On a besoin des fonctions de création de rubrique */
+	include_spip('action/editer_rubrique');
+	
+	// On récupère les catégories de wordpress pour en faire des rubriques.
+	$cat = sql_allfetsel('name', $prefix.'terms');
+
+	// On en fait des rubriques pour spip, à la racine.
+	foreach ($cat as $key => $value) {
+		$id_rubrique = rubrique_inserer(0);
+		rubrique_modifier($id_rubrique, array('titre' => $value['name']));
+	}
+
+	/* On ajoute une rubrique pour les pages de Wordpress */
+	$id_rubrique_wordpress_page = rubrique_inserer(0);
+	rubrique_modifier($id_rubrique_wordpress_page, array('titre' => 'page Wordpress'));
+
+	/* On a besoin des fonctions pour créer un articles */
+	include_spip('action/editer_article');
+
+	/* On récupère tout les "posts" de Wordpress */
+	$post = sql_allfetsel(
+				'*', 
+				$prefix.'posts as p
+				INNER JOIN '.$prefix.'term_relationships as tr ON object_id = p.ID
+				INNER JOIN '.$prefix.'terms as t ON tr.term_taxonomy_id = t.term_id', 
+
+				'post_type = \'post\'');
+
+	foreach ($post as $key => $value) {
+		
+		/* On récupère l'ID de la rubrique fraîchement créer */
+		$id_rubrique = sql_getfetsel('id_rubrique', 'spip_rubriques', 'titre='.sql_quote($value['name']));
+
+		/* On fixe le statut de l'article */
+		if ($value['post_status'] == 'publish') $statut_spip = 'publie';
+		elseif ($value['post_status'] == 'draft') $statut_spip = 'prepa';
+
+		$id_article = article_inserer($id_rubrique);
+		article_modifier($id_article, array(
+											'titre' => $value['post_title'],
+											'date_redac' => $value['post_date'],
+											'texte' => html2spip_translate(wpautop($value['post_content']), $id_article),
+											'statut' => $statut_spip,
+											'date_modif' => $value['post_date']
+											));
+	}
+
+	/* On récupère toutes les pages de Wordpress */
+	$page = sql_allfetsel(
+				'*', 
+				$prefix.'posts', 
+
+				'post_type = \'page\'');
+	foreach ($page as $key => $value) {
+		
+		/* On fixe le statut de l'article */
+		if ($value['post_status'] == 'publish') $statut_spip = 'publie';
+		elseif ($value['post_status'] == 'draft') $statut_spip = 'prepa';
+
+		$id_article = article_inserer($id_rubrique_wordpress_page);
+		article_modifier($id_article, array(
+											'titre' => $value['post_title'],
+											'date_redac' => $value['post_date'],
+											'texte' => html2spip_translate(wpautop($value['post_content']), $id_article),
+											'statut' => $statut_spip,
+											'date_modif' => $value['post_date']
+											));
+	}
+}
+
+/*******************************/
+/******* Exemples **************/
+/*******************************/
 
 /*
   Peuple la table spip_entreprises avec le contenu de la table 
