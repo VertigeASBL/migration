@@ -4,7 +4,7 @@
 	version="1.0.0"
 	etat="dev"
 	compatibilite="[3.0.5;3.0.*]"
-	logo=""
+	logo="prive/themes/spip/images/migration-48.png"
 	documentation="https://github.com/VertigeASBL/migration"
 >
 	<!--
@@ -13,10 +13,9 @@
 
 	<nom>API Migration</nom>
 
-	<auteur>Michel Bystranowski</auteur>
+	<auteur>Michel Bystranowski, Didier Debondt</auteur>
 
 	<licence>GNU/GPL</licence>
-
-  <lib nom="html2spip" lien="http://ftp.espci.fr/pub/html2spip/html2spip-0.6.zip" />
-
+  
+  <menu nom="migrations" titre="Migrations" parent="menu_administration" icone="images/migration-16.png" action="migrer" />
 </paquet>
