@@ -17,6 +17,8 @@ function formulaires_migration_verifier_dist() {
 }
 
 function formulaires_migration_traiter_dist() {
+	set_time_limit(0);
+	
  	include_spip('migration_fonctions');
 	$cms = _request('cms');
 	$prefix = _request('prefix');
