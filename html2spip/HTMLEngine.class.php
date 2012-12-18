@@ -1,5 +1,5 @@
 <?php # vim: syntax=php tabstop=2 softtabstop=2 shiftwidth=2 expandtab textwidth=80 autoindent
-# Copyright (C) 2010  Jean-Jacques Puig
+# Copyright (C) 2010 Jean-Jacques Puig
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,23 +8,23 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 define('TAG_START', 'tag_start');
-define('TAG_END',   'tag_end');
+define('TAG_END', 'tag_end');
 
 class HTMLEngine {
 
-  protected $attributeOuterSubstitute   = array();
-  protected $tagSubstitute              = array();
-  protected $attributeInnerSubstitute   = array();
+  protected $attributeOuterSubstitute = array();
+  protected $tagSubstitute = array();
+  protected $attributeInnerSubstitute = array();
 
-  private $chunkTitle                   = array('default');
-  private $chunkData                    = array('default' => '');
+  private $chunkTitle = array('default');
+  private $chunkData = array('default' => '');
 
   public function translate($htmlString) {
     if (method_exists($this, 'preProcessing'))
@@ -94,7 +94,7 @@ class HTMLEngine {
     if (!is_array($tagSub)) {
       if (sizeof($nAttributes) > 0)
         $this->info("No specific attributes processing for tag $nName with
-                      attributes " . implode(', ', array_keys($nAttributes)));
+attributes " . implode(', ', array_keys($nAttributes)));
 
       $this->processTag($domNode, $nName, $nAttributes, $nText, array(TAG_START => $tagSub, TAG_END => $tagSub));
 
@@ -114,7 +114,7 @@ class HTMLEngine {
 
     if (($size == 2) && (sizeof($nAttributes) > 0))
         $this->info("No specific attributes processing for tag $nName with
-                      attributes " . implode(', ', array_keys($nAttributes)));
+attributes " . implode(', ', array_keys($nAttributes)));
 
     if (($size == 3) && ($tagSub[2] !== null)) {
 
@@ -124,7 +124,7 @@ class HTMLEngine {
       $attrDiff = array_diff_key_value($nAttributes, $tagSub[2]);
       if (sizeof($attrDiff) > 0)
         $this->info("No specific attributes processing some attributes of tag
-                      $nName: " . print_r($attrDiff, true));
+$nName: " . print_r($attrDiff, true));
     }
 
     $this->processTag($domNode, $nName, $nAttributes, $nText, array(TAG_START => $tagSub[0], TAG_END => $tagSub[1]));
@@ -291,9 +291,9 @@ class HTMLEngine {
   # Debugging niceties.
   private $loggers = array(
     'interrupt' => 'error_log',
-    'error'     => 'error_log',
-    'warn'      => 'error_log',
-    'info'      => 'error_log',
+    'error' => 'error_log',
+    'warn' => 'error_log',
+    'info' => 'error_log',
   );
   private $disableLoggers = false;
 
@@ -379,15 +379,15 @@ class HTMLEngine {
 
         default:
           $data .= 'Unkown error';
-      } 
+      }
       $data .= ': ';
 
       $data .= trim($xml_error->message);
 
-      $row      = $xml_error->line;
-      $col      = $xml_error->column;
-      $inputl   = $input_lines[$row - 1];
-      $matches  = array();
+      $row = $xml_error->line;
+      $col = $xml_error->column;
+      $inputl = $input_lines[$row - 1];
+      $matches = array();
       if (
         ($col > 0)
         && (preg_match_all("/[ \t]/", $inputl, $matches, PREG_OFFSET_CAPTURE, 0))

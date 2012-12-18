@@ -31,6 +31,7 @@ function html2spip_translate ($texte, $id_article) {
   return trim($output['default']);
 }
 
+
 /* On définit ici nos fonctions d'import, qu'on peut appeller alors 
    dans le squelette prive/squelettes/contenu/migrer.html. On fait la
    migration en allant sur la page ecrire/?exec=migrer
@@ -41,11 +42,12 @@ function html2spip_translate ($texte, $id_article) {
 	Seulement les tables classique de wordpress.
 */
 function importer_wordpress($prefix = 'wp_') {
+	
 	/* On a besoin des fonctions de création de rubrique */
 	include_spip('action/editer_rubrique');
 	
 	// On récupère les catégories de wordpress pour en faire des rubriques.
-	$cat = sql_allfetsel('name', $prefix.'terms');
+	$cat = sql_allfetsel('name', $prefix.'terms AS t INNER JOIN '.$prefix.'term_taxonomy AS tax ON t.term_id = tax.term_id', 'taxonomy = \'category\'');
 
 	// On en fait des rubriques pour spip, à la racine.
 	foreach ($cat as $key => $value) {
@@ -65,27 +67,33 @@ function importer_wordpress($prefix = 'wp_') {
 				'*', 
 				$prefix.'posts as p
 				INNER JOIN '.$prefix.'term_relationships as tr ON object_id = p.ID
-				INNER JOIN '.$prefix.'terms as t ON tr.term_taxonomy_id = t.term_id', 
+				INNER JOIN '.$prefix.'terms as t ON tr.term_taxonomy_id = t.term_id
+				INNER JOIN '.$prefix.'term_taxonomy as tax ON t.term_id = tax.term_id', 
 
-				'post_type = \'post\'');
+				'post_type = \'post\' AND taxonomy = '.sql_quote('category'));
 
 	foreach ($post as $key => $value) {
-		
-		/* On récupère l'ID de la rubrique fraîchement créer */
-		$id_rubrique = sql_getfetsel('id_rubrique', 'spip_rubriques', 'titre='.sql_quote($value['name']));
+		/* On vérifie qu'il n'y a pas déjà un article qui porte ce nom */
+		$is_in_db = sql_getfetsel('id_article', 'spip_articles', 'titre = '.sql_quote($value['post_title']));
 
-		/* On fixe le statut de l'article */
-		if ($value['post_status'] == 'publish') $statut_spip = 'publie';
-		elseif ($value['post_status'] == 'draft') $statut_spip = 'prepa';
+		if (empty($is_in_db)) {
+			/* On fixe le statut de l'article */
+			if ($value['post_status'] == 'publish') $statut_spip = 'publie';
+			elseif ($value['post_status'] == 'draft') $statut_spip = 'prepa';
 
-		$id_article = article_inserer($id_rubrique);
-		article_modifier($id_article, array(
-											'titre' => $value['post_title'],
-											'date_redac' => $value['post_date'],
-											'texte' => html2spip_translate(wpautop($value['post_content']), $id_article),
-											'statut' => $statut_spip,
-											'date_modif' => $value['post_date']
-											));
+			/* On récupère l'ID de la rubrique fraîchement créer */
+			$id_rubrique = sql_getfetsel('id_rubrique', 'spip_rubriques', 'titre='.sql_quote($value['name']));
+
+			/* On ajoute l'article à SPIP */
+			$id_article = article_inserer($id_rubrique);
+			article_modifier($id_article, array(
+				'titre' => $value['post_title'],
+				'date_redac' => $value['post_date'],
+				'texte' => html2spip_translate(wpautop($value['post_content']), $id_article),
+				'statut' => $statut_spip,
+				'date_modif' => $value['post_date']
+				));
+		}
 	}
 
 	/* On récupère toutes les pages de Wordpress */

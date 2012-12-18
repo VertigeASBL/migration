@@ -17,5 +17,7 @@
 
 	<licence>GNU/GPL</licence>
   
-  <menu nom="migrations" titre="Migrations" parent="menu_administration" icone="images/migration-16.png" action="migrer" />
+  	<menu nom="migrations" titre="Migrations" parent="menu_administration" icone="images/migration-16.png" action="migrer" />
+  	
+  	<necessite nom="typoenluminee" compatibilite="[3.3.2;]" />
 </paquet>

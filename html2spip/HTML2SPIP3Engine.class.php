@@ -1,5 +1,5 @@
 <?php
-# Copyright (C) 2010  Jean-Jacques Puig
+# Copyright (C) 2010 Jean-Jacques Puig
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -8,46 +8,46 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 /*
-	Modifier par Phenix pour ajouter le support des images de SPIP 3, enjoy !
-	Attention qu'il faut maintenant passer l'id_article pour lier le document et l'article !
+Modifier par Phenix pour ajouter le support des images de SPIP 3, enjoy !
+Attention qu'il faut maintenant passer l'id_article pour lier le document et l'article !
 */
 
 class HTML2SPIP3Engine extends HTMLEngine {
 
   # Headings related members (H1, H2, H3...)
-  private $headingDepthSpip     = "{{{";
-  private $headingDepthHTML     = null;
+  private $headingDepthSpip = "{{{";
+  private $headingDepthHTML = null;
 
   # Lists related members (UL, OL, LI...)
-  private $listType             = array();
-  private $listDepth            = 0;
+  private $listType = array();
+  private $listDepth = 0;
 
   # Tables related members (TABLE, TH, TR, TD...)
-  private $tablesStack          = array();
+  private $tablesStack = array();
 
   # Within marks
-  private $withinStack          = array();
+  private $withinStack = array();
 
   # SPIP Environment
-  private $spipDBResource       = null;
-  private $spipImagesPath       = null;
-  private $id_article 			= null;
+  private $spipDBResource = null;
+  private $spipImagesPath = null;
+  private $id_article = null;
 
   # Documents (images) injected in SPIP database
-  public $spipDocumentsIds      = array();
+  public $spipDocumentsIds = array();
 
   # Common substitutions
   protected $tag2typo = array(
-    'br'  => "\n_ ",
-    'hr'  => "\n----",
-    'p'   => "\n\n",
+    'br' => "\n_ ",
+    'hr' => "\n----",
+    'p' => "\n\n",
   );
 
   # Main substitution rules
@@ -55,94 +55,94 @@ class HTML2SPIP3Engine extends HTMLEngine {
   # );
 
   protected $attributeInnerSubstitute = array(
-    'align'         => '_align',
-    'style'         => '_style',
+    'align' => '_align',
+    'style' => '_style',
   );
 
   protected $tagSubstitute = array(
     # array() as 3rd arg forces detail
     # display of ignored attributes
 
-    '#document'     => null,
-    'html'          => null,
-    'body'          => null,
-    'meta'          => null,
-    'link'          => null,
-    'style'         => null,
+    '#document' => null,
+    'html' => null,
+    'body' => null,
+    'meta' => null,
+    'link' => null,
+    'style' => null,
 
-    'script'        => array('_identityS', '_identityE', array('type')),
-    'embed'         => array('_identityS', '_identityE', null),
-    'param'         => array('_identityS', '_identityE', null),
-    'object'        => array('_identityS', '_identityE', null),
+    'script' => array('_identityS', '_identityE', array('type')),
+    'embed' => array('_identityS', '_identityE', null),
+    'param' => array('_identityS', '_identityE', null),
+    'object' => array('_identityS', '_identityE', null),
 
-    'div'           => array('_div', '_div', array('class', 'style', 'align')),
+    'div' => array('_div', '_div', array('class', 'style', 'align')),
 
-    'h1'            => array('_hiS', '_hiE', array('class')),
-    'h2'            => array('_hiS', '_hiE', array('class')),
-    'h3'            => array('_hiS', '_hiE', array('class')),
-    'h4'            => array('_hiS', '_hiE', array('class')),
-    'h5'            => array('_hiS', '_hiE', array('class')),
-    'h6'            => array('_hiS', '_hiE', array('class')),
+    'h1' => array('_hiS', '_hiE', array('class')),
+    'h2' => array('_hiS', '_hiE', array('class')),
+    'h3' => array('_hiS', '_hiE', array('class')),
+    'h4' => array('_hiS', '_hiE', array('class')),
+    'h5' => array('_hiS', '_hiE', array('class')),
+    'h6' => array('_hiS', '_hiE', array('class')),
 
-    'p'             => array('_p', '_p', array('class', 'style', 'align')),
-    'br'            => array('_br', ''),
+    'p' => array('_p', '_p', array('class', 'style', 'align')),
+    'br' => array('_br', ''),
 
-    'ul'            => array('_ulOrOlS', '_ulOrOlE'),
-    'ol'            => array('_ulOrOlS', '_ulOrOlE'),
-    'li'            => array('_li', '_li', array('style')),
+    'ul' => array('_ulOrOlS', '_ulOrOlE'),
+    'ol' => array('_ulOrOlS', '_ulOrOlE'),
+    'li' => array('_li', '_li', array('style')),
 
       # TABLES related tags
 
-    'table'         => array('_tableS', '_tableE', array(
+    'table' => array('_tableS', '_tableE', array(
                         'summary', 'cellpadding', 'cellspacing',
                         'border', 'width', 'class', 'style'
                        )),
-    'caption'       => array('_captionS', '_captionE', array()),
-    'tr'            => array('_trS', '_trE', array('style')),
-    'th'            => array('_thOrTdS', '_thOrTdE', array(
+    'caption' => array('_captionS', '_captionE', array()),
+    'tr' => array('_trS', '_trE', array('style')),
+    'th' => array('_thOrTdS', '_thOrTdE', array(
                         'colspan', 'rowspan', 'width', 'bgcolor', 'scope'
                        )),
-    'td'            => array('_thOrTdS', '_thOrTdE', array(
+    'td' => array('_thOrTdS', '_thOrTdE', array(
                         'colspan', 'rowspan', 'width', 'style', 'scope'
                        )),
 
-    'colgroup'      => array('', '', array()),
-    'col'           => array('', '', array()),
-    'thead'         => array('', '', array()),
-    'tbody'         => array('', '', array()),
-    'tfoot'         => array('', '', array()),
+    'colgroup' => array('', '', array()),
+    'col' => array('', '', array()),
+    'thead' => array('', '', array()),
+    'tbody' => array('', '', array()),
+    'tfoot' => array('', '', array()),
 
 
-    'font'          => array('', '', array(
+    'font' => array('', '', array(
                         'face', 'size', 'color',
                        )),
-    'b'             => array('_strongS', '_strongE', array('style')),
-    'strong'        => array('_strongS', '_strongE'),
-    'blockquote'    => array('_quoteS', '_quoteE', array('class')),
-    'code'          => array('_codeS', '_codeE', array('class')),
-    'textarea'      => array('_cadreS', '_cadreE', array('class')),
-    'em'            => array('_emS', '_emE'),
-    'i'             => array('_emS', '_emE'),
-    'span'          => array('_spanS', '_spanE', array('id', 'class')),
-    'hr'            => array("_tag2typo", ''),
-    'u'             => array('', '', array()),
-    'sup'           => array('_supS', '_supE', array()),
-    'sub'           => array('_subS', '_subE', array()),
-    'strike'        => array('_delS', '_delE', array()),
-    'del'           => array('_delS', '_delE', array()),
+    'b' => array('_strongS', '_strongE', array('style')),
+    'strong' => array('_strongS', '_strongE'),
+    'blockquote' => array('_quoteS', '_quoteE', array('class')),
+    'code' => array('_codeS', '_codeE', array('class')),
+    'textarea' => array('_cadreS', '_cadreE', array('class')),
+    'em' => array('_emS', '_emE'),
+    'i' => array('_emS', '_emE'),
+    'span' => array('_spanS', '_spanE', array('id', 'class')),
+    'hr' => array("_tag2typo", ''),
+    'u' => array('', '', array()),
+    'sup' => array('_supS', '_supE', array()),
+    'sub' => array('_subS', '_subE', array()),
+    'strike' => array('_delS', '_delE', array()),
+    'del' => array('_delS', '_delE', array()),
 
-    'a'             => array('_aS', '_aE', array(
+    'a' => array('_aS', '_aE', array(
                         'title', 'href', 'target', 'style', 'name', 'class',
                         'rel'
                        )),
-    'img'           => array('_imgS', '', array(
+    'img' => array('_imgS', '', array(
                         'src', 'align', 'width', 'height', 'alt', 'title',
                         'hspace', 'vspace', 'border', 'class', '_cke_saved_src',
                        )),
 
-    '#text'         => '_raw',
+    '#text' => '_raw',
     '#cdata-section'=> '_raw',
-    '#comment'      => '_comment',
+    '#comment' => '_comment',
   );
 
   protected function getAlign($align, $part) {
@@ -158,16 +158,16 @@ class HTML2SPIP3Engine extends HTMLEngine {
   }
 
   # protected function getJustification($attributes, $part) {
-  #   if (
-  #     array_key_exists('style', $attributes)
-  #     && preg_match('/text-align: (center|justify|left|right)/i', $attributes['style'], $matches))
-  #     $align = $matches[1];
-  #   elseif (array_key_exists('align', $attributes))
-  #     $align = $attributes['align'];
-  #   else
-  #     $align = null;
+  # if (
+  # array_key_exists('style', $attributes)
+  # && preg_match('/text-align: (center|justify|left|right)/i', $attributes['style'], $matches))
+  # $align = $matches[1];
+  # elseif (array_key_exists('align', $attributes))
+  # $align = $attributes['align'];
+  # else
+  # $align = null;
 
-  #   return $this->getAlign($align, $part); 
+  # return $this->getAlign($align, $part);
   # }
 
   protected function _align($attribute, $value, $tag, $textContent, $part) {
@@ -270,7 +270,7 @@ class HTML2SPIP3Engine extends HTMLEngine {
 
   protected function _p($tag, $attributes, $text, $part) {
     // if (!strlen(trim($text)))
-    //   return;
+    // return;
 
     return (($part == TAG_START) ? $this->tag2typo[$tag] : '');
   }
@@ -338,25 +338,25 @@ class HTML2SPIP3Engine extends HTMLEngine {
     array_unshift(
       $this->tablesStack,
       array(
-        'row'     => 0,
-        'col'     => 0,
-        'map'     => array(),
-        'newrow'  => true,
+        'row' => 0,
+        'col' => 0,
+        'map' => array(),
+        'newrow' => true,
       )
     );
 
     if (array_key_exists('summary', $attributes))
       $this->tablesStack[0]['summary'] = $attributes['summary'];
 
-    return "\n";  # AIDE SPIP: 'Il est impératif de laisser des lignes vides
-                  #   avant et après ce tableau.
+    return "\n"; # AIDE SPIP: 'Il est impÃ©ratif de laisser des lignes vides
+                  # avant et aprÃ¨s ce tableau.
   }
 
   protected function _tableE() {
     array_shift($this->tablesStack);
 
-    return "\n";  # AIDE SPIP: 'Il est impératif de laisser des lignes vides
-                  #   avant et après ce tableau.
+    return "\n"; # AIDE SPIP: 'Il est impÃ©ratif de laisser des lignes vides
+                  # avant et aprÃ¨s ce tableau.
   }
 
   protected function popTableSummary() {
@@ -412,7 +412,7 @@ class HTML2SPIP3Engine extends HTMLEngine {
       $data = '';
 
     while (
-      ($index = $this->tablesStack[0]['col'] . 'x' .  $this->tablesStack[0]['row'])
+      ($index = $this->tablesStack[0]['col'] . 'x' . $this->tablesStack[0]['row'])
       && (array_key_exists(
         $index,
         $this->tablesStack[0]['map']
@@ -460,7 +460,7 @@ class HTML2SPIP3Engine extends HTMLEngine {
     }
 
     while (
-      ($index = ($this->tablesStack[0]['col'] + 1) . 'x' .  $row)
+      ($index = ($this->tablesStack[0]['col'] + 1) . 'x' . $row)
       && (array_key_exists(
         $index,
         $this->tablesStack[0]['map']
@@ -610,7 +610,7 @@ class HTML2SPIP3Engine extends HTMLEngine {
       return;
 
     switch ($attributes['class']) {
-      case 'chapo': 
+      case 'chapo':
         if (!$this->within('_a'))
           return ' [*';
     }
@@ -624,7 +624,7 @@ class HTML2SPIP3Engine extends HTMLEngine {
       return;
 
     switch ($attributes['class']) {
-      case 'chapo': 
+      case 'chapo':
         if (!$this->within('_a'))
           return '*] ';
     }
@@ -709,7 +709,7 @@ class HTML2SPIP3Engine extends HTMLEngine {
         break;
 
       default:
-      #  $this->interrupt("Unexpected URL: $href");
+      # $this->interrupt("Unexpected URL: $href");
     }
 
     if (array_key_exists('align', $attributes))
@@ -727,7 +727,7 @@ class HTML2SPIP3Engine extends HTMLEngine {
     $id = spip_add_document(
       $this->id_article,
       $url,
-      $titre      
+      $titre
     );
     
     $this->spipDocumentsIds[] = $id;
@@ -762,13 +762,13 @@ class HTML2SPIP3Engine extends HTMLEngine {
     );
 
     $spans = array(
-      ' {',   '} ',
-      ' {{',  '}} ',
-      ' [',   '] ',   # hyperlinks
-      ' [*',  '*] ',
+      ' {', '} ',
+      ' {{', '}} ',
+      ' [', '] ', # hyperlinks
+      ' [*', '*] ',
       ' [**', '**]',
-      '[| ',  ' |]',
-      '[/ ',  ' /]',
+      '[| ', ' |]',
+      '[/ ', ' /]',
     );
     foreach($spans as $span)
       $replacements["/(" . preg_quote($span, '/') . ")+/"] = $span;
@@ -832,7 +832,7 @@ class HTML2SPIP3Engine extends HTMLEngine {
       array_values($replacements),
       $data);
 
-    return $data; 
+    return $data;
   }
 
   # $spip_db_resource no longer useful; any value OK
@@ -843,9 +843,9 @@ class HTML2SPIP3Engine extends HTMLEngine {
   }
 
   public function addIdentityTags($tags) {
-	foreach ($tags as $tag)
-		$this->tagSubstitute[$tag] = 
-		    array('_identityS', '_identityE', null);
+foreach ($tags as $tag)
+$this->tagSubstitute[$tag] =
+array('_identityS', '_identityE', null);
   }
 
   protected function pushWithin($tag) {

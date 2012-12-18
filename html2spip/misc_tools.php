@@ -1,4 +1,22 @@
-<?php # vim: syntax=php tabstop=2 softtabstop=2 shiftwidth=2 expandtab textwidth=80 autoindent
+<?php
+/*
+	Ajouter par Debondt Didier
+	
+	Clear URL: Cette fonction va ce charger de nettoyer les URL un peux spécial pour les encoder.
+	Certain CMS (Wordpress par exemple) on la mauvaise idée d'autoriser les caractère spéciaux dans les fichiers image. 
+	On créer une fonction pour nettoyer les URL et faire en sorte qu'elles passent dans la moulinette de SPIP.
+*/
+function clear_url($url) {
+	$special = array("'", 'à', 'é', 'è', '!', '&', '"', 'ç', "’", "é", "à");
+	$clean = array("%27", '%C3%A0', '%C3%A9', '%C3%A8', '%21', '%26', '%22', '%C3%A7', "%E2%80%99", "e%CC%81", "a%CC%80");
+
+	$u = str_replace($special, $clean, utf8_decode($url));
+
+	spip_log($u, 'migration'._LOG_AVERTISSEMENT);
+
+	return $u;
+}
+
 # Copyright (C) 2010  Jean-Jacques Puig
 #
 # This program is free software: you can redistribute it and/or modify
@@ -77,7 +95,7 @@ function spip_add_document($id_article, $url, $title) {
 	$id_document = document_inserer();
 	document_modifier($id_document, array(
 											'titre' => $title,
-											'fichier' => $url,
+											'fichier' => clear_url($url),
 											'distant' => 'oui',
 											'mode' => 'image'
 											));
@@ -90,5 +108,4 @@ function spip_add_document($id_article, $url, $title) {
 
 	return $id_document;
 }
-
 ?>
