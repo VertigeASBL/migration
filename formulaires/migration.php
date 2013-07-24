@@ -2,7 +2,8 @@
 function formulaires_migration_charger_dist() {
     
     $contexte = array(
-            '' => '',
+            'cms' => _request('cms'),
+            'prefix' => _request('prefix')
     );
     return $contexte;
 }
@@ -29,7 +30,8 @@ function formulaires_migration_traiter_dist() {
 	}
 	/* Sinon on lance la fonction avec le paramètre par défaut */
 	else {
-		if ($cms == 'wordpress') importer_wordpress();	
+		if ($cms == 'wordpress') importer_wordpress();
+        elseif ($cms == 'badje') importer_badje();
 	}
 	
     // message

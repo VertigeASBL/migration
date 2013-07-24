@@ -119,6 +119,139 @@ function importer_wordpress($prefix = 'wp_') {
 	}
 }
 
+/*
+*   Importer la base de donnée Badje, c'est un bon exemple pour migrer une base de donnée Excel
+*   en plugin SPIP.
+*/
+function importer_badje () {
+    // On inclut les fonctions de badje
+    include_spip('fonctions_badje');
+    include_spip('action/editer_objet');
+    include_spip('action/editer_liens');
+
+    // On va lire chaque ligne importer depuis le fichier CVS et agir en fonction de ce que l'ont trouve.
+
+    // Avec ça on a un tableau avec tout les champs de la base importe.
+    $import = sql_allfetsel('*', 'import');
+
+    // On boucle sur l'import, on va lire chaque ligne pour savoir ce que l'on va en faire.
+    foreach ($import as $key => $value) {
+
+        // On va tester la partie organisme et l'ajouter à la base de donnée s'il faut
+        if (!$id_organisme = organisme_existe($value['nom_organisme'])) {
+
+            // On creer le tableau des champs
+            $set = array(
+                        'nom_organisme' => $value['nom_organisme'],
+                        'adresse' => $value['adresse_organisme'],
+                        'code_postal' => $value['code_postal'],
+                        'localite' => $value['localite'],
+                        'telephone' => $value['telephone'],
+                        'gsm' => $value['gsm'],
+                        'fax' => $value['fax'],
+                        'email' => $value['email'],
+                        'site_internet' => $value['site_internet'],
+                        );
+            // On test l'agrément ONE
+            if ($value['ONE']) $set['one'] = 'on';
+
+            // On ajoute l'objet et on récupère id_organisme que l'on vien de créer
+            $id_organisme = objet_inserer('organisme',null, $set);
+        }
+
+        // A ce stage, on est certain d'avoir un id_organisme, de l'avoir créer s'il existe, ou simplement de l'avoir récupéré.
+        // On va ajouter l'activité. Car chaque ligne est une activité.
+
+        // On créé le tableau des donnée de l'activité
+        $set = array(
+                    'nom' => $value['nom_organisme'],
+                    'descriptif' => $value['desc_activite'],
+                    'prix' => str_replace('?', '€', $value['prix']),
+                    'age_min' => $value['age_min'],
+                    'age_max' => $value['age_max'],
+                    'adresse' => $value['adresse_activite'],
+                    'code_postal' => $value['code_postal_activite']
+                    );
+
+        // test pour les champ handicap
+        if ($value['accueil_handicap']) $set['accueil_handicap'] = $value['accueil_handicap'];
+        if ($value['accessible_mobilite']) $set['accessibilite_handicap'] = $value['accessible_mobilite'];
+
+        // Le logement
+        $logement = array();
+        if ($value['logement_externat']) $logement[] = $value['logement_externat'];
+        if ($value['logement_sejour']) $logement[] = $value['logement_sejour'];
+
+        // On vire les espace en trop
+        $logement = array_map('trim', $logement);
+
+        $logement = implode(',', $logement);
+
+        $set['logement'] = $logement;
+
+        // La garderie
+        if ($value['garderie']) $set['garderie'] = 'on';
+
+        // le repas chaud
+        if ($value['repas_chaud']) $set['repas_chaud'] = 'on';
+
+        // on traite les périodes
+        $periode = explode('-', $value['periode']);
+        // On vire les espace en trop
+        $periode = array_map('trim', $periode);
+        $set['periode'] = implode(',', $periode);
+
+        $id_activite = objet_inserer('activite', null, $set);
+
+        // Maintnant qu'on a les organismes, on va lier l'organisme a l'activité.
+        $objets_source = array('organisme' => $id_organisme);
+        $objets_lies = array('activite' => $id_activite);
+
+        objet_associer($objets_source, $objets_lies);
+
+        // On va maintenant traiter les activités.
+
+        $groupe_activite = array(
+            1 => 'activite_creative',
+            2 => 'activite_sport',
+            3 => 'multi_activite',
+            4 => 'soutien_scolaire'
+            );
+        foreach ($groupe_activite as $id_groupe => $groupe) {
+        
+            // On traite le champ creative
+            $creative = explode('-', $value[$groupe]);
+            $creative = array_map('trim', $creative);
+
+            // On boucle sur tout les types d'activité
+            foreach ($creative as $type_activite) {
+                if (!empty($type_activite)) {
+                    // On vérifie leur existance
+                    if (!$id_type_activite = type_activite_existe($type_activite) ) {
+                        
+                        // Le type n'existe pas, on l'ajoute
+                        $set = array('type_activite' => $type_activite);
+                        $id_type_activite = objet_inserer('type_activite', null, $set);
+                    }
+
+                    // On créé le lien entre l'activité et le type d'activité.
+                    $objets_source = array('type_activite' => $id_type_activite);
+                    $objets_lies = array('activite' => $id_activite);
+                    objet_associer($objets_source, $objets_lies);
+
+                    // On fini par créer le lien entre le type et le groupe 1
+                    // On créé le lien entre l'activité et le type d'activité.
+                    $objets_source = array('groupe_activite' => $id_groupe);
+                    $objets_lies = array('type_activite' => $id_type_activite);
+                    
+                    objet_associer($objets_source, $objets_lies);
+                }
+            }
+        }
+            
+    }
+}
+
 /*******************************/
 /******* Exemples **************/
 /*******************************/
