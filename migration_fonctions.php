@@ -203,11 +203,14 @@ function importer_badje () {
 
         $id_activite = objet_inserer('activite', null, $set);
 
-        // Maintnant qu'on a les organismes, on va lier l'organisme a l'activité.
+        // Maintenant qu'on a les organismes, on va lier l'organisme a l'activité.
         $objets_source = array('organisme' => $id_organisme);
         $objets_lies = array('activite' => $id_activite);
 
         objet_associer($objets_source, $objets_lies);
+
+        // Ici on publie l'activité.
+        objet_instituer('activite', $id_activite, array('statut' => 'publie'));
 
         // On va maintenant traiter les activités.
 
