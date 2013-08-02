@@ -129,6 +129,12 @@ function importer_badje () {
     include_spip('action/editer_objet');
     include_spip('action/editer_liens');
 
+    // Etape préliminaire: on créer les groupes d'activité
+    objet_inserer('groupe_activite', null, array('nom_groupe' => 'Activité créatives'));
+    objet_inserer('groupe_activite', null, array('nom_groupe' => 'Activité sportive'));
+    objet_inserer('groupe_activite', null, array('nom_groupe' => 'Multi-activité'));
+    objet_inserer('groupe_activite', null, array('nom_groupe' => 'Soutien scolaire'));
+
     // On va lire chaque ligne importer depuis le fichier CVS et agir en fonction de ce que l'ont trouve.
 
     // Avec ça on a un tableau avec tout les champs de la base importe.
@@ -212,8 +218,9 @@ function importer_badje () {
         // Ici on publie l'activité.
         objet_instituer('activite', $id_activite, array('statut' => 'publie'));
 
-        // On va maintenant traiter les activités.
 
+
+        // On va maintenant traiter les activités.
         $groupe_activite = array(
             1 => 'activite_creative',
             2 => 'activite_sport',
