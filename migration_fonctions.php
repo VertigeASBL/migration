@@ -203,7 +203,7 @@ function importer_badje () {
 
         // Les handicap
         if ($value['accueil_handicap']) $set['accueil_handicap'] = 'on';
-        if ($value['accessible_mobilite']) $set['accessible_mobilite'] = 'on';
+        if ($value['accessible_mobilite']) $set['accessibilite_handicap'] = 'on';
 
         // on traite les périodes
         $periode = explode('-', $value['periode']);
