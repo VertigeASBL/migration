@@ -201,6 +201,10 @@ function importer_badje () {
         // le repas chaud
         if ($value['repas_chaud']) $set['repas_chaud'] = 'on';
 
+        // Les handicap
+        if ($value['accueil_handicap']) $set['accueil_handicap'] = 'on';
+        if ($value['accessible_mobilite']) $set['accessible_mobilite'] = 'on';
+
         // on traite les périodes
         $periode = explode('-', $value['periode']);
         // On vire les espace en trop
