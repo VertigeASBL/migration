@@ -120,8 +120,7 @@ function importer_wordpress($prefix = 'wp_') {
 }
 
 /*
-*   Importer la base de donnée Badje, c'est un bon exemple pour migrer une base de donnée Excel
-*   en plugin SPIP.
+*   Importer la base de donnée Badje, c'est un bon exemple pour migrer une base de donnée Excel en plugin SPIP.
 */
 function importer_badje () {
     // On inclut les fonctions de badje
