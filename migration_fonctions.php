@@ -176,7 +176,8 @@ function importer_badje () {
                     'age_min' => $value['age_min'],
                     'age_max' => $value['age_max'],
                     'adresse' => $value['adresse_activite'],
-                    'code_postal' => $value['code_postal_activite']
+                    'code_postal' => $value['code_postal_activite'],
+                    'commune' => $value['localite_activite']
                     );
 
         // test pour les champ handicap
