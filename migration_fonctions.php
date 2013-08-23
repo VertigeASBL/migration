@@ -162,6 +162,8 @@ function importer_badje () {
 
             // On ajoute l'objet et on récupère id_organisme que l'on vien de créer
             $id_organisme = objet_inserer('organisme',null, $set);
+            // Ensuite on publie l'organisle
+            objet_instituer('organisme', $id_organisme, array('statut' => 'publie'));
         }
 
         // A ce stage, on est certain d'avoir un id_organisme, de l'avoir créer s'il existe, ou simplement de l'avoir récupéré.
