@@ -32,6 +32,7 @@ function formulaires_migration_traiter_dist() {
 	else {
 		if ($cms == 'wordpress') importer_wordpress();
         elseif ($cms == 'badje') importer_badje();
+        elseif ($cms == 'StGillesCulture') importer_stgilles();
 	}
 	
     // message

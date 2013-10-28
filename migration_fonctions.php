@@ -364,4 +364,36 @@ function importer_entreprises_depuis_joomla () {
   }
 }
 
+/*
+*   Pour ce site on dois importer des champs extra auteur (ancien SPIP-Liste) dans mailsuscribers (newsletter).
+*/
+function importer_stgilles() {
+    include_spip('action/editer_objet');
+
+    // On va sélécitonner toutes les adresses mail de newsletter
+    $emails = sql_allfetsel('id_mailsubscriber, email', 'spip_mailsubscribers');
+
+    // Ensuite on va aller chercher les champs extra qui corresponde dans la table auteur
+
+    $champ_auteur = array(
+        'a_pren',
+        'a_genre',
+        'a_tel',
+        'a_org',
+        'a_rec',
+        'a_rue',
+        'a_num',
+        'a_postal',
+        'a_ville',
+        'a_cla'
+        );
+    foreach ($emails as $email) {
+        // On récupère l'auteur en fonction de son adresse mail
+        $auteur = sql_allfetsel($champ_auteur, 'spip_auteurs', 'email='.sql_quote($email['email']));
+
+        // On envoie les donnée dans le mailsuscribers
+        objet_modifier('mailsubscriber', $email['id_mailsubscriber'], $auteur[0]);
+    }
+}
+
 ?>
