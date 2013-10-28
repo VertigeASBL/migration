@@ -1,23 +1,24 @@
 <?php
-/**
- * Plugin Migration
- * (c) 2012 Michel Bystranowski
- * Licence GNU/GPL
- */
+/*
+*   Ce fichier contient les fonctions d'importation de différent site.
+*   Ce sont des exemples, a vous de créer les vôtres !
+*
+*    Didier - Vertige ASBL
+*    http://www.vertige.org/
+*    http://p.henix.be/
+*/
 
 if (!defined('_ECRIRE_INC_VERSION')) return;
 
 /*
-	On inclut les fonctions relative au CMS
+*	On inclut les fonctions relative au CMS
 */
-
 include_spip('cms_fonctions');
 
 /*
-  Reconversion HTML vers typo SPIP
+*   Reconversion HTML vers typo SPIP
 */
 function html2spip_translate ($texte, $id_article) {
-  
   require_once(find_in_path('html2spip/misc_tools.php'));
   require_once(find_in_path('html2spip/HTMLEngine.class.php'));
   require_once(find_in_path('html2spip/HTML2SPIP3Engine.class.php'));
@@ -42,10 +43,10 @@ function html2spip_translate ($texte, $id_article) {
 	Seulement les tables classique de wordpress.
 */
 function importer_wordpress($prefix = 'wp_') {
-	
-	/* On a besoin des fonctions de création de rubrique */
+
+	// On a besoin des fonctions de création de rubrique
 	include_spip('action/editer_rubrique');
-	
+
 	// On récupère les catégories de wordpress pour en faire des rubriques.
 	$cat = sql_allfetsel('name', $prefix.'terms AS t INNER JOIN '.$prefix.'term_taxonomy AS tax ON t.term_id = tax.term_id', 'taxonomy = \'category\'');
 
@@ -103,7 +104,7 @@ function importer_wordpress($prefix = 'wp_') {
 
 				'post_type = \'page\'');
 	foreach ($page as $key => $value) {
-		
+
 		/* On fixe le statut de l'article */
 		if ($value['post_status'] == 'publish') $statut_spip = 'publie';
 		elseif ($value['post_status'] == 'draft') $statut_spip = 'prepa';
@@ -234,7 +235,7 @@ function importer_badje () {
             4 => 'soutien_scolaire'
             );
         foreach ($groupe_activite as $id_groupe => $groupe) {
-        
+
             // On traite le champ creative
             $creative = explode('-', $value[$groupe]);
             $creative = array_map('trim', $creative);
@@ -244,7 +245,7 @@ function importer_badje () {
                 if (!empty($type_activite)) {
                     // On vérifie leur existance
                     if (!$id_type_activite = type_activite_existe($type_activite) ) {
-                        
+
                         // Le type n'existe pas, on l'ajoute
                         $set = array('type_activite' => $type_activite);
                         $id_type_activite = objet_inserer('type_activite', null, $set);
@@ -259,12 +260,11 @@ function importer_badje () {
                     // On créé le lien entre l'activité et le type d'activité.
                     $objets_source = array('groupe_activite' => $id_groupe);
                     $objets_lies = array('type_activite' => $id_type_activite);
-                    
+
                     objet_associer($objets_source, $objets_lies);
                 }
             }
         }
-            
     }
 }
 
@@ -277,7 +277,6 @@ function importer_badje () {
   Guilde_Entreprises maintenue par Joomla.
 */
 function importer_entreprises_depuis_joomla () {
-  
   /* on récupère les données de la table de départ */
   $tableau_entreprises = sql_allfetsel('Entreprise, Phrase, '. 
     'Rue1, CP1, Ville1, Commune1, Tel1, Fax1, Gsm1, Email1, Site1,'.
@@ -396,4 +395,23 @@ function importer_stgilles() {
     }
 }
 
+/*
+*   Transformer le CSV en mots clée SPIP, pour St Gilles Culture
+*/
+function importer_rue_forest() {
+    // Il nous faut les fonctions d'édition de mots clé.
+    include_spip('action/editer_mot');
+
+    // Fonction de spip Bonux pour importer les fichier CSV
+    $importer_csv = charger_fonction('importer_csv', 'inc');
+
+    // Récupére le fichier
+    $file = find_in_path('forest.csv');
+    $rues = $importer_csv($file);
+
+    foreach ($rues as $rue) {
+        $id_mot = mot_inserer(13);
+        mot_modifier($id_mot, array('titre' => $rue[0]));
+    }
+}
 ?>

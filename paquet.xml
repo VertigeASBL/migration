@@ -7,9 +7,6 @@
 	logo="prive/themes/spip/images/migration-48.png"
 	documentation="https://github.com/VertigeASBL/migration"
 >
-	<!--
-		Paquet généré le 2012-11-28 10:04:39
-	-->
 
 	<nom>API Migration</nom>
 
@@ -20,4 +17,5 @@
   	<menu nom="migrations" titre="Migrations" parent="menu_administration" icone="images/migration-16.png" action="migrer" />
   	
   	<necessite nom="typoenluminee" compatibilite="[3.3.2;]" />
+    <necessite nom="spip_bonux" compatibilite="[3.0.5;]" />
 </paquet>
