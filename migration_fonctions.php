@@ -33,7 +33,7 @@ function html2spip_translate ($texte, $id_article = NULL) {
 }
 
 
-/* On définit ici nos fonctions d'import, qu'on peut appeller alors 
+/* On définit ici nos fonctions d'import, qu'on peut appeller alors
    dans le squelette prive/squelettes/contenu/migrer.html. On fait la
    migration en allant sur la page ecrire/?exec=migrer
 */
@@ -65,11 +65,11 @@ function importer_wordpress($prefix = 'wp_') {
 
 	/* On récupère tout les "posts" de Wordpress */
 	$post = sql_allfetsel(
-				'*', 
+				'*',
 				$prefix.'posts as p
 				INNER JOIN '.$prefix.'term_relationships as tr ON object_id = p.ID
 				INNER JOIN '.$prefix.'terms as t ON tr.term_taxonomy_id = t.term_id
-				INNER JOIN '.$prefix.'term_taxonomy as tax ON t.term_id = tax.term_id', 
+				INNER JOIN '.$prefix.'term_taxonomy as tax ON t.term_id = tax.term_id',
 
 				'post_type = \'post\' AND taxonomy = '.sql_quote('category'));
 
@@ -99,8 +99,8 @@ function importer_wordpress($prefix = 'wp_') {
 
 	/* On récupère toutes les pages de Wordpress */
 	$page = sql_allfetsel(
-				'*', 
-				$prefix.'posts', 
+				'*',
+				$prefix.'posts',
 
 				'post_type = \'page\'');
 	foreach ($page as $key => $value) {
@@ -273,12 +273,12 @@ function importer_badje () {
 /*******************************/
 
 /*
-  Peuple la table spip_entreprises avec le contenu de la table 
+  Peuple la table spip_entreprises avec le contenu de la table
   Guilde_Entreprises maintenue par Joomla.
 */
 function importer_entreprises_depuis_joomla () {
   /* on récupère les données de la table de départ */
-  $tableau_entreprises = sql_allfetsel('Entreprise, Phrase, '. 
+  $tableau_entreprises = sql_allfetsel('Entreprise, Phrase, '.
     'Rue1, CP1, Ville1, Commune1, Tel1, Fax1, Gsm1, Email1, Site1,'.
     'Rue2, CP2, Ville2, Commune2, Tel2, Fax2, Gsm2, Email2, Site2,'.
     'Rue3, CP3, Ville3, Commune3, Tel3, Fax3, Gsm3, Email3, Site3,'.
