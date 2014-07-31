@@ -32,6 +32,26 @@ function html2spip_translate ($texte, $id_article = NULL) {
   return trim($output['default']);
 }
 
+/**
+ * Ajouter un logo à un truc sans se prendre le choux
+ */
+function ajouter_logo ($objet, $id_objet, $fichier) {
+
+    include_spip('action/iconifier');
+	$chercher_logo = charger_fonction('chercher_logo','inc');
+    $ajouter_image = charger_fonction('spip_image_ajouter','action');
+
+    $type = type_du_logo(id_table_objet($objet));
+    $logo = $chercher_logo($id_objet, id_table_objet($objet));
+
+    if ($logo)
+        spip_unlink($logo[0]);
+
+    if ($err = $ajouter_image($type."on".$id_objet," ", array('tmp_name' => $fichier), true))
+        return $err;
+    else
+        return True;
+}
 
 /* On définit ici nos fonctions d'import, qu'on peut appeller alors
    dans le squelette prive/squelettes/contenu/migrer.html. On fait la
