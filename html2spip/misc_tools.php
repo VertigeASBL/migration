@@ -101,7 +101,9 @@ function spip_add_document($id_article, $url, $title) {
 											));
 
 	/* On associe le document à son article */
-	objet_associer(array('document' => $id_document), array('article' => $id_article));
+    if ($id_article) {
+        objet_associer(array('document' => $id_document), array('article' => $id_article));
+    }
 
 	/* On copie le document dans SPIP */
 	$copier_local($id_document);

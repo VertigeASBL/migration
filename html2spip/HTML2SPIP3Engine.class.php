@@ -836,7 +836,7 @@ class HTML2SPIP3Engine extends HTMLEngine {
   }
 
   # $spip_db_resource no longer useful; any value OK
-  public function __construct($spip_db_resource, $images_path, $id_article) {
+  public function __construct($spip_db_resource, $images_path, $id_article = NULL) {
     $this->spipDBResource = $spip_db_resource;
     $this->spipImagesPath = $images_path;
     $this->id_article = $id_article;

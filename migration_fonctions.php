@@ -18,7 +18,7 @@ include_spip('cms_fonctions');
 /*
 *   Reconversion HTML vers typo SPIP
 */
-function html2spip_translate ($texte, $id_article) {
+function html2spip_translate ($texte, $id_article = NULL) {
   require_once(find_in_path('html2spip/misc_tools.php'));
   require_once(find_in_path('html2spip/HTMLEngine.class.php'));
   require_once(find_in_path('html2spip/HTML2SPIP3Engine.class.php'));
