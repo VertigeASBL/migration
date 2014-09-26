@@ -38,7 +38,7 @@ function html2spip_translate ($texte, $id_article = NULL) {
 function ajouter_logo ($objet, $id_objet, $fichier) {
 
     include_spip('action/iconifier');
-	$chercher_logo = charger_fonction('chercher_logo','inc');
+    $chercher_logo = charger_fonction('chercher_logo','inc');
     $ajouter_image = charger_fonction('spip_image_ajouter','action');
 
     $type = type_du_logo(id_table_objet($objet));
@@ -50,7 +50,7 @@ function ajouter_logo ($objet, $id_objet, $fichier) {
     if ($err = $ajouter_image($type."on".$id_objet," ", array('tmp_name' => $fichier), true))
         return $err;
     else
-        return True;
+        return true;
 }
 
 /* On définit ici nos fonctions d'import, qu'on peut appeller alors
